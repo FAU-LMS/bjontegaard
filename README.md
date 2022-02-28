@@ -1,6 +1,6 @@
 # Bjøntegaard-Delta Interpolation
 ## Introduction
-The Bjøntegaard-Delta (BD) metrics (delta bit rate and delta PSNR) described in [[1]](/doc/VCEG-M33.pdf)
+The Bjøntegaard-Delta (BD) metrics (delta bit rate and delta PSNR) described in [1]
 are well known metrics to measure the
 average differences between two rate-distortion (RD) curves. They are based on **cubic-spline interpolation (CSI)** (bd_cubic.py)
 of the RD curves and [Matlab](https://www.mathworks.com/matlabcentral/fileexchange/41749-bjontegaard-metric-calculation-bd-psnr) 
@@ -13,14 +13,14 @@ the so-called **piecewise cubic hermite interpolation (PCHIP)** (bd_piecewise_cu
 sheet [[2]](http://phenix.int-evry.fr/jct/doc_end_user/documents/12_Geneva/wg11/JCTVC-L1100-v1.zip) for performance evaluation.
 Nevertheless, only this Excel sheet, but no Python implementation is available yet. Thus, a Python implementation is provided here. 
 
-In a further study [[3]](https://doi.org/10.48550/arXiv.2202.12565), it was found that **Akima interpolation** (bd_akima.py) returns even more accurate results. An example for corresponding interpolation curves is shown below. 
+In a further study [[3]](https://doi.org/10.48550/arXiv.2202.12565), it was found that **Akima interpolation** (bd_akima.py) returns even more accurate results. An example for corresponding interpolated curves is shown below. 
 
 
 ## Usage
 Basic usage of this package:
 ```python
 import numpy as np
-from lmsbd import bd_akima # can be replaced by bd_piecewise_cubic or bd_cubic
+from bd import bd_akima # can be replaced by bd_piecewise_cubic or bd_cubic
 
 # Get test data to evaluate
 # This has been measured using ffmpeg (libx265 with different preset settings).
@@ -43,7 +43,7 @@ The functions for BD rate computation are equipped with optional parameters,
 where axes handles can be provided to plot the interpolation curves in.
 
 Furthermore, a comparison between the interpolated curves and intermediate, true rate-distortion points between the supporting points is shown in the plot below. 
-For this example, the quality is represented by the SSIM value. Apparently, the curve interpolated by the Akima interpolator is closest to the intermediate points. 
+For this example, the quality is represented by the SSIM value. Note that the example was chosen because cubic interpolation fails. Apparently, the curve interpolated by the Akima interpolator is closest to the intermediate points. 
 
 ![Measured data](doc/interpolated_curves.png)
 
