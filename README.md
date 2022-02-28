@@ -13,7 +13,7 @@ the so-called **piecewise cubic hermite interpolation (PCHIP)** (piecewise cubic
 sheet [[2]](http://phenix.int-evry.fr/jct/doc_end_user/documents/12_Geneva/wg11/JCTVC-L1100-v1.zip) for performance evaluation.
 Nevertheless, only this Excel sheet, but no Python implementation is available yet. Thus, a Python implementation is provided here. 
 
-In a further study [[3]](arxivLink), it was found that **Akima interpolation** returns even more accurate results. An example for corresponding interpolation curves is shown below. 
+In a further study [[3]](https://doi.org/10.48550/arXiv.2202.12565), it was found that **Akima interpolation** returns even more accurate results. An example for corresponding interpolation curves is shown below. 
 
 
 ## Usage
@@ -50,4 +50,4 @@ For this example, the quality is represented by the SSIM value. Apparently, the 
 ## References
 [1] G. Bjontegaard, "Calculation of average PSNR differences between RD-curves", VCEG-M33, Austin, TX, USA, April 2001. <br/>
 [2] F. Bossen, " 	Common HM test conditions and software reference configurations", JCTVC-L1100, Geneva, Switzerland, April 2013. <br/>
-[3] C. Herglotz, M. Kränzler, R. Mons, A. Kaup, "Beyond Bjontegaard: Limits of Video Compression Performance Comparisons", submitted to ICIP 2022, TODO LINK<br/>
+[3] C. Herglotz, M. Kränzler, R. Mons, A. Kaup, "Beyond Bjontegaard: Limits of Video Compression Performance Comparisons", submitted to ICIP 2022, [preprint](https://doi.org/10.48550/arXiv.2202.12565) available <br/>
