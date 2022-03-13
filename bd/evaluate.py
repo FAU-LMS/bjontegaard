@@ -22,39 +22,40 @@ from . import bd_cubic
 from . import bd_piecewise_cubic
 import matplotlib.pyplot as plt
 
-def compare(rate1, psnr1, rate2, psnr2, paramset=('rate','PSNR')):
-	f = plt.figure(figsize=(12, 5))
-	ax = f.add_subplot(1,1,1)
+def compare(rate1, psnr1, rate2, psnr2, paramset=('rate','PSNR'), save_plot=True):
+	name = paramset[2] if len(paramset) >= 3 else 'none'
+
+	f1 = plt.figure(figsize=(12, 5))
+	ax = f1.add_subplot(1,1,1)
 	bd_rate = bd_cubic.bd_rate(rate1, psnr1, rate2, psnr2, ax)    
 	bd_PSNR = bd_cubic.bd_PSNR(rate1, psnr1, rate2, psnr2)
 	
 	print('BD ' + paramset[0] + ' Cubic:            ' + str("%.4f" %(bd_rate))+"%")
 	print('BD ' + paramset[1] + ' Cubic:            ' + str("%.4f" %(bd_PSNR))+"dB")
-	
-	name = paramset[2] if len(paramset) >= 3 else 'none'
-	#f.savefig(name + '.svg', dpi=f.dpi) 
+
 	plt.show()
 	
-	f = plt.figure(figsize=(12, 5))
-	ax = f.add_subplot(1,1,1)
+	f2 = plt.figure(figsize=(12, 5))
+	ax = f2.add_subplot(1,1,1)
 	bd_rate = bd_piecewise_cubic.bd_rate(rate1, psnr1, rate2, psnr2, ax)
 	bd_PSNR = bd_piecewise_cubic.bd_PSNR(rate1, psnr1, rate2, psnr2)
 	
 	print('BD ' + paramset[0] + ' Piecewise-cubic:  ' + str("%.4f" %(bd_rate))+"%")
 	print('BD ' + paramset[1] + ' Piecewise-cubic:  ' + str("%.4f" %(bd_PSNR))+"dB")
 	
-	name = paramset[2] if len(paramset) >= 3 else 'none'
-	#f.savefig(name + '.svg', dpi=f.dpi) 
 	plt.show()
 
-	f = plt.figure(figsize=(12, 5))
-	ax = f.add_subplot(1,1,1)
+	f3 = plt.figure(figsize=(12, 5))
+	ax = f3.add_subplot(1,1,1)
 	bd_rate = bd_akima.bd_rate(rate1, psnr1, rate2, psnr2, ax)
 	bd_PSNR = bd_akima.bd_PSNR(rate1, psnr1, rate2, psnr2)
 	
 	print('BD ' + paramset[0] + ' Akima:            ' + str("%.4f" %(bd_rate))+"%")
 	print('BD ' + paramset[1] + ' Akima:            ' + str("%.4f" %(bd_PSNR))+"dB")
-	
-	name = paramset[2] if len(paramset) >= 3 else 'none'
-	#f.savefig(name + '.svg', dpi=f.dpi) 
+
 	plt.show()
+
+	if save_plot:
+		f1.savefig(name + '_cubic.svg', dpi=f1.dpi)
+		f2.savefig(name + '_pchip.svg', dpi=f2.dpi)
+		f3.savefig(name + '_akima.svg', dpi=f3.dpi)

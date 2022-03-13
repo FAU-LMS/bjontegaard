@@ -15,9 +15,9 @@
 # 
 
 import numpy as np
-from lmsbd import bd_akima
-from lmsbd import bd_piecewise_cubic
-from lmsbd import evaluate
+from bd import bd_akima
+from bd import bd_piecewise_cubic
+from bd import evaluate
 
 # Get test data to evaluate
 rate1 = np.array([9487.76, 4593.60, 2486.44, 1358.24])
@@ -32,7 +32,8 @@ paramset = ('rate','PSNR')
 
 print('\nBD Demo using Cubic, Piecewise-cubic, and Akima interpolation:')
 print('\nTest 1')
-evaluate.compare(rate1, psnr1, rate2, psnr2, paramset)
+# the parameter 'save_plot' lets you determine whether the plot should be saved as an .svg or not
+evaluate.compare(rate1, psnr1, rate2, psnr2, paramset, save_plot=False)
 
 
 print('\n\nTest 2 for high bit rates')
@@ -42,4 +43,4 @@ rate2 = np.array([99896.96, 33952.04, 9787.8, 4469.0,])
 psnr2 = np.array([44.731, 41.875, 40.121, 38.651,])
 paramset = ('rate','PSNR','testcase2') 
 
-evaluate.compare(rate1, psnr1, rate2, psnr2, paramset)
+evaluate.compare(rate1, psnr1, rate2, psnr2, paramset, save_plot=False)
