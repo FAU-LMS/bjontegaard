@@ -19,7 +19,7 @@ import scipy.interpolate
 
 
 def bd_rate(rateA, distA, rateB, distB, ax=None):
-
+    """Computes the Bjøntegaard bitrate (%) based on the Piecewise Cubic Hermite Interpolating Polynomial"""
     rateA = np.array(rateA)
     distA = np.array(distA)
     rateB = np.array(rateB)
@@ -73,7 +73,7 @@ def bd_rate(rateA, distA, rateB, distB, ax=None):
 
 
 def bd_PSNR(rateA, distA, rateB, distB):
-
+    """Computes the average PSNR difference based on the Piecewise Cubic Hermite Interpolating Polynomial"""
     rateA = np.array(rateA)
     distA = np.array(distA)
     rateB = np.array(rateB)
