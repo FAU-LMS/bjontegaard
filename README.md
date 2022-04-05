@@ -11,7 +11,7 @@ problems for certain RD curve constellations and causes very misleading results.
 This has also been experienced during the standardization of HEVC. Consequently, 
 the so-called **piecewise cubic hermite interpolation (PCHIP)** (bd_piecewise_cubic.py) has been implemented in the JCT-VC Common Test Conditions (CTC) Excel 
 sheet [[2]](http://phenix.int-evry.fr/jct/doc_end_user/documents/12_Geneva/wg11/JCTVC-L1100-v1.zip) for performance evaluation.
-Nevertheless, only this Excel sheet, but no Python implementation is available yet. Thus, a Python implementation is provided here. In [[3]](https://jvet-experts.org/doc_end_user/documents/20_Teleconference/wg11/JVET-T2010-v2.zip), the Excel sheet for the state-of-the-art video codec VVC is given.
+Nevertheless, only this Excel sheet, but no Python implementation is available yet. Thus, a Python implementation is provided here. In [[3]](https://jvet-experts.org/doc_end_user/documents/20_Teleconference/wg11/JVET-T2010-v2.zip), the Excel sheet for the state-of-the-art video codec VVC is given. In our tests, the implementation of PCHIP returns the same value as the Excel-Implementation with an accuracy of at least 10 decimal positions. 
 
 In a further study [[4]](https://doi.org/10.48550/arXiv.2202.12565), it was found that **Akima interpolation** (bd_akima.py) returns even more accurate results. An example for corresponding interpolated curves is shown below. 
 
