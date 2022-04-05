@@ -30,8 +30,8 @@ def compare(rate1, psnr1, rate2, psnr2, paramset=('rate','PSNR'), save_plot=True
 	bd_rate = bd_cubic.bd_rate(rate1, psnr1, rate2, psnr2, ax)    
 	bd_PSNR = bd_cubic.bd_PSNR(rate1, psnr1, rate2, psnr2)
 	
-	print('BD ' + paramset[0] + ' Cubic:            ' + str("%.4f" %(bd_rate))+"%")
-	print('BD ' + paramset[1] + ' Cubic:            ' + str("%.4f" %(bd_PSNR))+"dB")
+	print('BD ' + paramset[0] + ' Cubic:            ' + str("%.10f" %(bd_rate))+"%")
+	print('BD ' + paramset[1] + ' Cubic:            ' + str("%.10f" %(bd_PSNR))+"dB")
 
 	plt.show()
 	
@@ -40,8 +40,8 @@ def compare(rate1, psnr1, rate2, psnr2, paramset=('rate','PSNR'), save_plot=True
 	bd_rate = bd_piecewise_cubic.bd_rate(rate1, psnr1, rate2, psnr2, ax)
 	bd_PSNR = bd_piecewise_cubic.bd_PSNR(rate1, psnr1, rate2, psnr2)
 	
-	print('BD ' + paramset[0] + ' Piecewise-cubic:  ' + str("%.4f" %(bd_rate))+"%")
-	print('BD ' + paramset[1] + ' Piecewise-cubic:  ' + str("%.4f" %(bd_PSNR))+"dB")
+	print('BD ' + paramset[0] + ' Piecewise-cubic:  ' + str("%.10f" %(bd_rate))+"%")
+	print('BD ' + paramset[1] + ' Piecewise-cubic:  ' + str("%.10f" %(bd_PSNR))+"dB")
 	
 	plt.show()
 
@@ -50,8 +50,8 @@ def compare(rate1, psnr1, rate2, psnr2, paramset=('rate','PSNR'), save_plot=True
 	bd_rate = bd_akima.bd_rate(rate1, psnr1, rate2, psnr2, ax)
 	bd_PSNR = bd_akima.bd_PSNR(rate1, psnr1, rate2, psnr2)
 	
-	print('BD ' + paramset[0] + ' Akima:            ' + str("%.4f" %(bd_rate))+"%")
-	print('BD ' + paramset[1] + ' Akima:            ' + str("%.4f" %(bd_PSNR))+"dB")
+	print('BD ' + paramset[0] + ' Akima:            ' + str("%.10f" %(bd_rate))+"%")
+	print('BD ' + paramset[1] + ' Akima:            ' + str("%.10f" %(bd_PSNR))+"dB")
 
 	plt.show()
 
