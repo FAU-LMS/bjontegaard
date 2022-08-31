@@ -1,3 +1,6 @@
+[![License](https://img.shields.io/badge/license-BSD%203--Clause-green)](https://opensource.org/licenses/BSD-3-Clause)
+![GitHub top language](https://img.shields.io/github/languages/top/FAU-LMS/bjontegaard)
+
 # Bjøntegaard-Delta Interpolation
 ## Introduction
 The Bjøntegaard-Delta (BD) metrics (delta bit rate and delta PSNR) described in [1]
@@ -52,3 +55,7 @@ For this example, the quality is represented by the SSIM value. Note that the ex
 [2] F. Bossen, "Common HM test conditions and software reference configurations", JCTVC-L1100, Geneva, Switzerland, April 2013. <br/>
 [3] F. Bossen, "VTM common test conditions and software reference configurations for SDR video", JVET-T2020, Teleconference, October 2020. <br/>
 [4] C. Herglotz, M. Kränzler, R. Mons, A. Kaup, "Beyond Bjontegaard: Limits of Video Compression Performance Comparisons", submitted to ICIP 2022, [preprint](https://doi.org/10.48550/arXiv.2202.12565) available. <br/>
+
+## License
+
+BSD 3-Clause. For details, see [LICENSE](/LICENSE).
