@@ -18,6 +18,10 @@ In our tests, the implementation of PCHIP returns the same value as the Excel-Im
 
 In a further study [[4]](https://doi.org/10.48550/arXiv.2202.12565), it was found that **Akima interpolation** returns even more accurate results. An example for corresponding interpolated curves is shown below.
 
+## Install
+
+`bjontegaard` is best installed via pip: `pip install bjontegaard`.
+
 ## Usage
 
 Example with test data measured using ffmpeg (libx265 with different preset settings) and Akima interpolation:
