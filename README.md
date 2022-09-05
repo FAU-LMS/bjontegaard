@@ -15,6 +15,7 @@ Nevertheless, only this Excel sheet, but no Python implementation is available y
 Thus, a Python implementation is provided here.
 In [[3]](https://jvet-experts.org/doc_end_user/documents/20_Teleconference/wg11/JVET-T2010-v2.zip), the Excel sheet for the state-of-the-art video codec VVC is given.
 In our tests, the implementation of PCHIP returns the same value as the Excel-Implementation with an accuracy of at least 10 decimal positions. 
+The BD can also be calculated for more than four RD points (not yet cross-checked with respective Excel implementations).
 
 In a further study [[4]](https://doi.org/10.48550/arXiv.2202.12565), it was found that **Akima interpolation** returns even more accurate results. An example for corresponding interpolated curves is shown below.
 
