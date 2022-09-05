@@ -40,69 +40,93 @@ _ValueArray = Union[List[Union[int, float]], np.ndarray]
 _Interpolator = Callable[[np.ndarray], np.ndarray]
 
 
-def bd_rate(rate1: _ValueArray,
-            dist1: _ValueArray,
-            rate2: _ValueArray,
-            dist2: _ValueArray,
-            method: str,
+def _check_points(n_rate_anchor, n_dist_anchor, n_rate_test, n_dist_test, require_matching_points):
+    if n_rate_anchor != n_dist_anchor:
+        raise ValueError("Number of rate and distortion points for anchor does not match.")
+    if n_rate_test != n_dist_test:
+        raise ValueError("Number of rate and distortion points for test does not match.")
+    if require_matching_points and n_rate_anchor != n_rate_test:
+        raise ValueError("Number of rate-distortion points for anchor and test does not match but "
+                         "`require_matching_points == True`")
+
+
+def bd_rate(rate_anchor: _ValueArray,
+            dist_anchor: _ValueArray,
+            rate_test: _ValueArray,
+            dist_test: _ValueArray,
+            method: str = 'pchip',
+            require_matching_points=True,
             interpolators=False) -> Union[float, Tuple[float, _Interpolator, _Interpolator]]:
     """
     Calculate the Bjontegaard-Delta Rate using the specified interpolation method.
 
-    :param rate1: rates of reference codec
-    :param dist1: distortion metrics of reference codec
-    :param rate2: rates of investigated codec
-    :param dist2: distortion metrics of investigated codec
-    :param method: interpolation method to use for Bjontegaard-Delta calculation ('akima', 'pchip', 'cubic')
+    :param rate_anchor: rates of reference codec
+    :param dist_anchor: distortion metrics of reference codec
+    :param rate_test: rates of investigated codec
+    :param dist_test: distortion metrics of investigated codec
+    :param method: interpolation method to use for Bjontegaard-Delta calculation ('akima', 'pchip' (default), 'cubic')
+    :param require_matching_points: whether to require an equal number of rate-distortion points for anchor and test.
+    (default: True)
     :param interpolators: whether to include the interpolation callables in the output (default: False)
     :returns: Bjontegaard-Delta Rate
     :returns: Only returned if `interpolators == True`. Interpolation callables for investigated and reference codec.
+    :raises ValueError: if number of points for rate and distortion metric do not match
+    :raises ValueError: if `require_matching_points == True` and number of rate-distortion points for anchor and test
+    do not match
     :raises ValueError: if interpolation method is not valid
     """
-    rate1 = np.asarray(rate1)
-    dist1 = np.asarray(dist1)
-    rate2 = np.asarray(rate2)
-    dist2 = np.asarray(dist2)
+    rate_anchor = np.asarray(rate_anchor)
+    dist_anchor = np.asarray(dist_anchor)
+    rate_test = np.asarray(rate_test)
+    dist_test = np.asarray(dist_test)
+    _check_points(len(rate_anchor), len(dist_anchor), len(rate_test), len(dist_test), require_matching_points)
     if method == 'akima':
-        return bd_akima.bd_rate(rate1, dist1, rate2, dist2, interpolators)
+        return bd_akima.bd_rate(rate_anchor, dist_anchor, rate_test, dist_test, interpolators)
     elif method == 'pchip':
-        return bd_piecewise_cubic.bd_rate(rate1, dist1, rate2, dist2, interpolators)
+        return bd_piecewise_cubic.bd_rate(rate_anchor, dist_anchor, rate_test, dist_test, interpolators)
     elif method == 'cubic':
-        return bd_cubic.bd_rate(rate1, dist1, rate2, dist2, interpolators)
+        return bd_cubic.bd_rate(rate_anchor, dist_anchor, rate_test, dist_test, interpolators)
     else:
         raise ValueError("Invalid interpolation method '{}'. Only 'akima', 'pchip' and 'cubic' are allowed"
                          .format(method))
 
 
-def bd_psnr(rate1: _ValueArray,
-            dist1: _ValueArray,
-            rate2: _ValueArray,
-            dist2: _ValueArray,
-            method: str,
+def bd_psnr(rate_anchor: _ValueArray,
+            dist_anchor: _ValueArray,
+            rate_test: _ValueArray,
+            dist_test: _ValueArray,
+            method: str = 'pchip',
+            require_matching_points=True,
             interpolators=False) -> Union[float, Tuple[float, _Interpolator, _Interpolator]]:
     """
     Calculate the Bjontegaard-Delta PSNR using the specified interpolation method.
 
-    :param rate1: rates of reference codec
-    :param dist1: distortion metrics of reference codec
-    :param rate2: rates of investigated codec
-    :param dist2: distortion metrics of investigated codec
-    :param method: interpolation method to use for Bjontegaard-Delta calculation ('akima', 'pchip', 'cubic')
+    :param rate_anchor: rates of reference codec
+    :param dist_anchor: distortion metrics of reference codec
+    :param rate_test: rates of investigated codec
+    :param dist_test: distortion metrics of investigated codec
+    :param method: interpolation method to use for Bjontegaard-Delta calculation ('akima', 'pchip' (default), 'cubic')
+    :param require_matching_points: whether to require an equal number of rate-distortion points for anchor and test.
+    (default: True)
     :param interpolators: whether to include the interpolation callables in the output (default: False)
     :returns: Bjontegaard-Delta PSNR
     :returns: Only returned if `interpolators == True`. Interpolation callables for investigated and reference codec.
+    :raises ValueError: if number of points for rate and distortion metric do not match
+    :raises ValueError: if `require_matching_points == True` and number of rate-distortion points for anchor and test
+    do not match
     :raises ValueError: if interpolation method is not valid
     """
-    rate1 = np.asarray(rate1)
-    dist1 = np.asarray(dist1)
-    rate2 = np.asarray(rate2)
-    dist2 = np.asarray(dist2)
+    rate_anchor = np.asarray(rate_anchor)
+    dist_anchor = np.asarray(dist_anchor)
+    rate_test = np.asarray(rate_test)
+    dist_test = np.asarray(dist_test)
+    _check_points(len(rate_anchor), len(dist_anchor), len(rate_test), len(dist_test), require_matching_points)
     if method == 'akima':
-        return bd_akima.bd_PSNR(rate1, dist1, rate2, dist2, interpolators)
+        return bd_akima.bd_PSNR(rate_anchor, dist_anchor, rate_test, dist_test, interpolators)
     elif method == 'pchip':
-        return bd_piecewise_cubic.bd_PSNR(rate1, dist1, rate2, dist2, interpolators)
+        return bd_piecewise_cubic.bd_PSNR(rate_anchor, dist_anchor, rate_test, dist_test, interpolators)
     elif method == 'cubic':
-        return bd_cubic.bd_PSNR(rate1, dist1, rate2, dist2, interpolators)
+        return bd_cubic.bd_PSNR(rate_anchor, dist_anchor, rate_test, dist_test, interpolators)
     else:
         raise ValueError("Invalid interpolation method '{}'. Only 'akima', 'pchip' and 'cubic' are allowed"
                          .format(method))

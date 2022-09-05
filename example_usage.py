@@ -32,18 +32,18 @@ import numpy as np
 import bjontegaard as bd
 
 # Test data for test case 1
-rate1 = np.array([9487.76, 4593.60, 2486.44, 1358.24])
-psnr1 = np.array([40.037, 38.615, 36.845, 34.851])
-rate2 = np.array([9787.80, 4469.00, 2451.52, 1356.24])
-psnr2 = np.array([40.121, 38.651, 36.970, 34.987])
+rate_anchor = np.array([9487.76, 4593.60, 2486.44, 1358.24])
+psnr_anchor = np.array([40.037, 38.615, 36.845, 34.851])
+rate_test = np.array([9787.80, 4469.00, 2451.52, 1356.24])
+psnr_test = np.array([40.121, 38.651, 36.970, 34.987])
 
 # If filepath is given, it describes the file that the resulting plot is written to.
-bd.compare_methods(rate1, psnr1, rate2, psnr2, figure_label="Test 1", filepath=None)
+bd.compare_methods(rate_anchor, psnr_anchor, rate_test, psnr_test, figure_label="Test 1", filepath=None)
 
 # Test data for test case 2 (high bitrates)
-rate1 = np.array([82472.76, 26875.24, 9487.76, 4593.6])
-psnr1 = np.array([43.825, 41.404, 40.037, 38.615])
-rate2 = np.array([99896.96, 33952.04, 9787.8, 4469.0])
-psnr2 = np.array([44.731, 41.875, 40.121, 38.651])
+rate_anchor = np.array([82472.76, 26875.24, 9487.76, 4593.6])
+psnr_anchor = np.array([43.825, 41.404, 40.037, 38.615])
+rate_test = np.array([99896.96, 33952.04, 9787.8, 4469.0])
+psnr_test = np.array([44.731, 41.875, 40.121, 38.651])
 
-bd.compare_methods(rate1, psnr1, rate2, psnr2, figure_label="Test 2 (High bitrates)", filepath=None)
+bd.compare_methods(rate_anchor, psnr_anchor, rate_test, psnr_test, figure_label="Test 2 (High bitrates)", filepath=None)

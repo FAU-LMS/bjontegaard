@@ -33,21 +33,40 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def compare_methods(rate1,
-                    dist1,
-                    rate2,
-                    dist2,
+def compare_methods(rate_anchor,
+                    dist_anchor,
+                    rate_test,
+                    dist_test,
+                    require_matching_points=True,
                     rate_label='rate',
                     distortion_label='PSNR',
                     figure_label=None,
                     filepath=None):
-    rate1 = np.asarray(rate1)
-    dist1 = np.asarray(dist1)
-    rate2 = np.asarray(rate2)
-    dist2 = np.asarray(dist2)
+    """
+    Plots a comparison of the internal behaviour of the different interpolation methods for BD calculations.
 
-    dists1 = np.linspace(dist1.min(), dist1.max(), num=10, endpoint=True)
-    dists2 = np.linspace(dist2.min(), dist2.max(), num=10, endpoint=True)
+    :param rate_anchor: rates of reference codec
+    :param dist_anchor: distortion metrics of reference codec
+    :param rate_test: rates of investigated codec
+    :param dist_test: distortion metrics of investigated codec
+    :param require_matching_points: whether to require an equal number of rate-distortion points for anchor and test.
+    (default: True)
+    :param rate_label: Rate metric label (x-axis)
+    :param distortion_label: Distortion metric label (y-axis)
+    :param figure_label: Figure label (title)
+    :param filepath: if filepath is given, final plot is stored to the given file
+    :raises ValueError: if number of points for rate and distortion metric do not match
+    :raises ValueError: if `require_matching_points == True` and number of rate-distortion points for anchor and test
+    do not match
+    :raises ValueError: if interpolation method is not valid
+    """
+    rate_anchor = np.asarray(rate_anchor)
+    dist_anchor = np.asarray(dist_anchor)
+    rate_test = np.asarray(rate_test)
+    dist_test = np.asarray(dist_test)
+
+    dists1 = np.linspace(dist_anchor.min(), dist_anchor.max(), num=10, endpoint=True)
+    dists2 = np.linspace(dist_test.min(), dist_test.max(), num=10, endpoint=True)
 
     # Plot interpolation curves for each method
     methods = {
@@ -58,17 +77,20 @@ def compare_methods(rate1,
     fig, axs = plt.subplots(2, 2, figsize=(16, 10))
     fig.suptitle(figure_label)
     for ax, (method, (label, log)) in zip(axs.flat, methods.items()):
-        bd_rate, interp1, interp2 = bd.bd_rate(rate1, dist1, rate2, dist2, method=method, interpolators=True)
-        bd_psnr = bd.bd_psnr(rate1, dist1, rate2, dist2, method=method)
+        bd_rate, interp1, interp2 = bd.bd_rate(rate_anchor, dist_anchor, rate_test, dist_test,
+                                               method=method,
+                                               require_matching_points=require_matching_points,
+                                               interpolators=True)
+        bd_psnr = bd.bd_psnr(rate_anchor, dist_anchor, rate_test, dist_test, method=method, require_matching_points=require_matching_points)
 
         # Plot rate1 and dist1
         rates1 = interp1(dists1)
-        ax.plot(log(rate1), dist1, '-o', color='tab:blue', label='encoder1')
+        ax.plot(log(rate_anchor), dist_anchor, '-o', color='tab:blue', label='anchor')
         ax.plot(rates1, dists1, '--', color='tab:blue')
 
         # Plot rate2 and dist1
         rates2 = interp2(dists2)
-        ax.plot(log(rate2), dist2, '-o', color='tab:orange', label='encoder2')
+        ax.plot(log(rate_test), dist_test, '-o', color='tab:orange', label='test')
         ax.plot(rates2, dists2, '--', color='tab:orange')
 
         # Set axis properties
