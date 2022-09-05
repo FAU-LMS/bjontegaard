@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # Copyright 2014 Google.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,13 +28,13 @@ import numpy  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 
 
-def bd_PSNR(rate1, psnr1, rate2, psnr2):
+def bd_PSNR(rate1, dist1, rate2, dist2, interpolators=False):
     """
     BJONTEGAARD    Bjontegaard metric calculation
-    Bjontegaard's metric allows to compute the average gain in psnr between two
-    rate-distortion curves [1].
-    rate1,psnr1 - RD points for curve 1
-    rate2,psnr2 - RD points for curve 2
+    Bjontegaard's metric allows to compute the average gain in bd_psnr between two
+    bd_rate-rate2 curves [1].
+    rate1,rate2 - RD points for curve 1
+    rate1,distortion_reference - RD points for curve 2
 
     returns the calculated Bjontegaard metric 'dsnr'
 
@@ -49,13 +48,13 @@ def bd_PSNR(rate1, psnr1, rate2, psnr2):
     # pylint: disable=bad-builtin
 
     # log_rate1 = map(math.log, rate1)
-    # log_rate2 = map(math.log, rate2)
+    # log_rate2 = map(math.log, rate1)
     log_rate1 = numpy.log(rate1)
     log_rate2 = numpy.log(rate2)
 
     # Best cubic poly fit for graph represented by log_ratex, psrn_x.
-    poly1 = numpy.polyfit(log_rate1, psnr1, 3)
-    poly2 = numpy.polyfit(log_rate2, psnr2, 3)
+    poly1 = numpy.polyfit(log_rate1, dist1, 3)
+    poly2 = numpy.polyfit(log_rate2, dist2, 3)
 
     # Integration interval.
     min_int = max([min(log_rate1), min(log_rate2)])
@@ -74,17 +73,23 @@ def bd_PSNR(rate1, psnr1, rate2, psnr2):
         avg_diff = (int2 - int1) / (max_int - min_int)
     else:
         avg_diff = 0.0
-    return avg_diff
+
+    output = avg_diff
+    if interpolators:
+        interp1 = numpy.poly1d(poly1)
+        interp2 = numpy.poly1d(poly2)
+        output = (output, interp1, interp2)
+    return output
 
 
-def bd_rate(rate1, psnr1, rate2, psnr2, ax=None):
+def bd_rate(rate1, dist1, rate2, dist2, interpolators=False):
     """
     BJONTEGAARD    Bjontegaard metric calculation
     Bjontegaard's metric allows to compute the average % saving in bitrate
-    between two rate-distortion curves [1].
+    between two bd_rate-rate2 curves [1].
 
-    rate1,psnr1 - RD points for curve 1
-    rate2,psnr2 - RD points for curve 2
+    rate1,rate2 - RD points for curve 1
+    rate1,distortion_reference - RD points for curve 2
 
     adapted from code from: (c) 2010 Giuseppe Valenzise
 
@@ -95,17 +100,17 @@ def bd_rate(rate1, psnr1, rate2, psnr2, ax=None):
     # pylint: disable=bad-builtin
 
     # log_rate1 = map(math.log, rate1)
-    # log_rate2 = map(math.log, rate2)
+    # log_rate2 = map(math.log, rate1)
     log_rate1 = numpy.log(rate1)
     log_rate2 = numpy.log(rate2)
 
     # Best cubic poly fit for graph represented by log_ratex, psrn_x.
-    poly1 = numpy.polyfit(psnr1, log_rate1, 3)
-    poly2 = numpy.polyfit(psnr2, log_rate2, 3)
+    poly1 = numpy.polyfit(dist1, log_rate1, 3)
+    poly2 = numpy.polyfit(dist2, log_rate2, 3)
 
     # Integration interval.
-    min_int = max([min(psnr1), min(psnr2)])
-    max_int = min([max(psnr1), max(psnr2)])
+    min_int = max([min(dist1), min(dist2)])
+    max_int = min([max(dist1), max(dist2)])
 
     # find integral
     p_int1 = numpy.polyint(poly1)
@@ -126,19 +131,9 @@ def bd_rate(rate1, psnr1, rate2, psnr2, ax=None):
     # Convert to a percentage.
     avg_diff = (math.exp(avg_exp_diff) - 1) * 100
 
-    if ax:
-        ax.set_title('Cubic interpolation (non-piece-wise)')
-        # plot rateA and distA
-        pA = ax.plot(log_rate1, psnr1, '-o', label='encoder1')
-        dists = numpy.linspace(psnr1.min(), psnr1.max(), num=10, endpoint=True)
-        ax.plot(numpy.poly1d(poly1)(dists), dists, '--', color=pA[-1].get_color())
-        # plot rateB and distB
-        pB = plt.plot(log_rate2, psnr2, '-o', label='encoder2')
-        dists = numpy.linspace(psnr2.min(), psnr2.max(), num=10, endpoint=True)
-        ax.plot(numpy.poly1d(poly2)(dists), dists, '--', color=pB[-1].get_color())
-        ax.set_xlabel('log(rate)')
-        ax.set_ylabel('PSNR')
-        ax.grid()
-        ax.legend()
-
-    return avg_diff
+    output = avg_diff
+    if interpolators:
+        interp1 = numpy.poly1d(poly1)
+        interp2 = numpy.poly1d(poly2)
+        output = (output, interp1, interp2)
+    return output
