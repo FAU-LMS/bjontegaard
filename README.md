@@ -45,14 +45,14 @@ print(f"BD-PSNR: {bd_psnr:.4f} dB")
 ```
 
 This package provides two main functions for BD metric calculation:
-* `bd_rate(rate_anchor, dist_anchor, rate_test, dist_test, method='pchip', require_matching_points=True, interpolators=False)`
-* `bd_psnr(rate_anchor, dist_anchor, rate_test, dist_test, method='pchip', require_matching_points=True, interpolators=False)`
+* `bd_rate(rate_anchor, dist_anchor, rate_test, dist_test, method, require_matching_points=True, interpolators=False)`
+* `bd_psnr(rate_anchor, dist_anchor, rate_test, dist_test, method, require_matching_points=True, interpolators=False)`
 
 The parameters `rate_anchor` and `dist_anchor` describe the rate-distortion points of the anchor, `rate_test` and `dist_test` describe the rate-distortion points of the test codec.
 
 Available interpolation methods:
 * `'cubic'`: Cubic spline interpolation
-* `'pchip'`: Piecewise cubic hermite interpolation (default, used in standardizations [[2]](http://phenix.int-evry.fr/jct/doc_end_user/documents/12_Geneva/wg11/JCTVC-L1100-v1.zip), [[3]]((https://jvet-experts.org/doc_end_user/documents/20_Teleconference/wg11/JVET-T2010-v2.zip)))
+* `'pchip'`: Piecewise cubic hermite interpolation (used in standardizations [[2]](http://phenix.int-evry.fr/jct/doc_end_user/documents/12_Geneva/wg11/JCTVC-L1100-v1.zip), [[3]]((https://jvet-experts.org/doc_end_user/documents/20_Teleconference/wg11/JVET-T2010-v2.zip)))
 * `'akima'`: Akima interpolation [[4]](https://doi.org/10.48550/arXiv.2202.12565)
 
 If `require_matching_points=True` (default), the number of rate-distortion points for anchor and test must match.

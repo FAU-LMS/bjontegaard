@@ -54,7 +54,7 @@ def bd_rate(rate_anchor: _ValueArray,
             dist_anchor: _ValueArray,
             rate_test: _ValueArray,
             dist_test: _ValueArray,
-            method: str = 'pchip',
+            method: str,
             require_matching_points=True,
             interpolators=False) -> Union[float, Tuple[float, _Interpolator, _Interpolator]]:
     """
@@ -64,7 +64,7 @@ def bd_rate(rate_anchor: _ValueArray,
     :param dist_anchor: distortion metrics of reference codec
     :param rate_test: rates of investigated codec
     :param dist_test: distortion metrics of investigated codec
-    :param method: interpolation method to use for Bjontegaard-Delta calculation ('akima', 'pchip' (default), 'cubic')
+    :param method: interpolation method to use for Bjontegaard-Delta calculation ('akima', 'pchip', 'cubic')
     :param require_matching_points: whether to require an equal number of rate-distortion points for anchor and test.
     (default: True)
     :param interpolators: whether to include the interpolation callables in the output (default: False)
@@ -95,7 +95,7 @@ def bd_psnr(rate_anchor: _ValueArray,
             dist_anchor: _ValueArray,
             rate_test: _ValueArray,
             dist_test: _ValueArray,
-            method: str = 'pchip',
+            method: str,
             require_matching_points=True,
             interpolators=False) -> Union[float, Tuple[float, _Interpolator, _Interpolator]]:
     """
@@ -105,7 +105,7 @@ def bd_psnr(rate_anchor: _ValueArray,
     :param dist_anchor: distortion metrics of reference codec
     :param rate_test: rates of investigated codec
     :param dist_test: distortion metrics of investigated codec
-    :param method: interpolation method to use for Bjontegaard-Delta calculation ('akima', 'pchip' (default), 'cubic')
+    :param method: interpolation method to use for Bjontegaard-Delta calculation ('akima', 'pchip', 'cubic')
     :param require_matching_points: whether to require an equal number of rate-distortion points for anchor and test.
     (default: True)
     :param interpolators: whether to include the interpolation callables in the output (default: False)
