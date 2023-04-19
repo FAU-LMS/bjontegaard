@@ -1,6 +1,6 @@
 # BSD 3-Clause License
 #
-# Copyright (c) 2022, Friedrich-Alexander-Universität Erlangen-Nürnberg.
+# Copyright (c) 2022-2023, Friedrich-Alexander-Universität Erlangen-Nürnberg.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
