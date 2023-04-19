@@ -58,6 +58,12 @@ Available interpolation methods:
 If `require_matching_points=True` (default), the number of rate-distortion points for anchor and test must match.
 If `interpolators=True` is given, the functions additionally return the internal interpolation objects that can be used to check the behaviour of the value interpolation.
 
+## Relative curve difference plots (RCD-plots)
+
+For in-depth evaluation of codec comparison results, we recommend to take relative curve difference plots (RCD-plots) into account.
+They can be created using:
+* `plot_rcd(rate_anchor, dist_anchor, rate_test, dist_test, method, require_matching_points=True, samples=1000)`
+
 ## Comparison behind the scenes
 The function `compare_methods` generates a plot that compares the internal interpolation behaviour of the three variants.
 The parameters `rate_label`, `distortion_label`, and `figure_label` control the figure and axis labels of the plot.

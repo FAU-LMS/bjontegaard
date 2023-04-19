@@ -47,8 +47,15 @@ def bd_rate(rateA, distA, rateB, distB, interpolators=False):
         distB = np.flipud(distB)
 
     # computes interpolating polynomial via the Akima Interpolation method
-    interp1 = scipy.interpolate.Akima1DInterpolator(distA, np.log10(rateA))
-    interp2 = scipy.interpolate.Akima1DInterpolator(distB, np.log10(rateB))
+    # (fallback to linear for less than 3 supporting points)
+    if len(rateA) > 2:
+        interp1 = scipy.interpolate.Akima1DInterpolator(distA, np.log10(rateA))
+    else:
+        interp1 = scipy.interpolate.make_interp_spline(distA, np.log10(rateA), k=1)
+    if len(rateB) > 2:
+        interp2 = scipy.interpolate.Akima1DInterpolator(distB, np.log10(rateB))
+    else:
+        interp2 = scipy.interpolate.make_interp_spline(distB, np.log10(rateB), k=1)
 
     # compute the integration interval
     min_dist = max(distA.min(), distB.min())
@@ -92,8 +99,15 @@ def bd_PSNR(rateA, distA, rateB, distB, interpolators=False):
     rateB = np.log10(rateB)
 
     # computes interpolating polynomial via the Akima Interpolation method
-    interp1 = scipy.interpolate.Akima1DInterpolator(rateA, distA)
-    interp2 = scipy.interpolate.Akima1DInterpolator(rateB, distB)
+    # (fallback to linear for less than 3 supporting points)
+    if len(rateA) > 2:
+        interp1 = scipy.interpolate.Akima1DInterpolator(rateA, distA)
+    else:
+        interp1 = scipy.interpolate.make_interp_spline(rateA, distA, k=1)
+    if len(rateB) > 2:
+        interp2 = scipy.interpolate.Akima1DInterpolator(rateB, distB)
+    else:
+        interp2 = scipy.interpolate.make_interp_spline(rateB, distB, k=1)
 
     # compute the integration interval
     min_rate = max(rateA.min(), rateB.min())

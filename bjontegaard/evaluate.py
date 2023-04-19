@@ -70,13 +70,13 @@ def compare_methods(rate_anchor,
 
     # Plot interpolation curves for each method
     methods = {
-        'cubic': ('Cubic interpolation (non-piece-wise)', np.log),
-        'pchip': ('Piece-wise cubic interpolation', np.log10),
-        'akima': ('BD Calculation with Akima Interpolation', np.log10)
+        'cubic': 'Cubic interpolation (non-piece-wise)',
+        'pchip': 'Piece-wise cubic interpolation',
+        'akima': 'BD Calculation with Akima Interpolation'
     }
     fig, axs = plt.subplots(2, 2, figsize=(16, 10))
     fig.suptitle(figure_label)
-    for ax, (method, (label, log)) in zip(axs.flat, methods.items()):
+    for ax, (method, label) in zip(axs.flat, methods.items()):
         bd_rate, interp1, interp2 = bd.bd_rate(rate_anchor, dist_anchor, rate_test, dist_test,
                                                method=method,
                                                require_matching_points=require_matching_points,
@@ -85,17 +85,17 @@ def compare_methods(rate_anchor,
 
         # Plot rate1 and dist1
         rates1 = interp1(dists1)
-        ax.plot(log(rate_anchor), dist_anchor, '-o', color='tab:blue', label='anchor')
+        ax.plot(np.log10(rate_anchor), dist_anchor, '-o', color='tab:blue', label='anchor')
         ax.plot(rates1, dists1, '--', color='tab:blue')
 
         # Plot rate2 and dist1
         rates2 = interp2(dists2)
-        ax.plot(log(rate_test), dist_test, '-o', color='tab:orange', label='test')
+        ax.plot(np.log10(rate_test), dist_test, '-o', color='tab:orange', label='test')
         ax.plot(rates2, dists2, '--', color='tab:orange')
 
         # Set axis properties
         ax.set_title(label)
-        ax.set_xlabel('{}({})'.format(log.__name__, rate_label))
+        ax.set_xlabel('{}({})'.format(np.log10.__name__, rate_label))
         ax.set_ylabel(distortion_label)
         ax.grid()
         ax.legend()

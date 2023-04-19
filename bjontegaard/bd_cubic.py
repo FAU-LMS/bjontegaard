@@ -49,8 +49,8 @@ def bd_PSNR(rate1, dist1, rate2, dist2, interpolators=False):
 
     # log_rate1 = map(math.log, rate1)
     # log_rate2 = map(math.log, rate1)
-    log_rate1 = numpy.log(rate1)
-    log_rate2 = numpy.log(rate2)
+    log_rate1 = numpy.log10(rate1)
+    log_rate2 = numpy.log10(rate2)
 
     # Best cubic poly fit for graph represented by log_ratex, psrn_x.
     poly1 = numpy.polyfit(log_rate1, dist1, 3)
@@ -101,8 +101,8 @@ def bd_rate(rate1, dist1, rate2, dist2, interpolators=False):
 
     # log_rate1 = map(math.log, rate1)
     # log_rate2 = map(math.log, rate1)
-    log_rate1 = numpy.log(rate1)
-    log_rate2 = numpy.log(rate2)
+    log_rate1 = numpy.log10(rate1)
+    log_rate2 = numpy.log10(rate2)
 
     # Best cubic poly fit for graph represented by log_ratex, psrn_x.
     poly1 = numpy.polyfit(dist1, log_rate1, 3)
