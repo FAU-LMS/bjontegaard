@@ -13,14 +13,11 @@ The Bjøntegaard-Delta (BD) metrics (delta bit rate and delta PSNR) described in
 
 However, this way of interpolation using a third-order polynomial leads to problems for certain RD curve constellations and causes very misleading results.
 This has also been experienced during the standardization of HEVC.
-Consequently, the so-called **piecewise cubic hermite interpolation (PCHIP)** has been implemented in the JCT-VC Common Test Conditions (CTC) Excel sheet [[2]](http://phenix.int-evry.fr/jct/doc_end_user/documents/12_Geneva/wg11/JCTVC-L1100-v1.zip) for performance evaluation.
-Nevertheless, only this Excel sheet, but no Python implementation is available yet.
-Thus, a Python implementation is provided here.
-In [[3]](https://jvet-experts.org/doc_end_user/documents/20_Teleconference/wg11/JVET-T2010-v2.zip), the Excel sheet for the state-of-the-art video codec VVC is given.
-In our tests, the implementation of PCHIP returns the same value as the Excel-Implementation with an accuracy of at least 10 decimal positions. 
-The BD can also be calculated for more than four RD points (not yet cross-checked with respective Excel implementations).
+Consequently, the so-called **piecewise cubic hermite interpolation (PCHIP)** has been implemented in the JCT-VC Common Test Conditions (CTC) Excel sheet [[2]](http://phenix.int-evry.fr/jct/doc_end_user/documents/12_Geneva/wg11/JCTVC-L1100-v1.zip) for performance evaluation. In further studies [[4]](https://doi.org/10.48550/arXiv.2202.12565) - [[5]](https://arxiv.org/abs/2304.12852), it was found that **Akima interpolation** returns more accurate and stable results. An example for corresponding interpolated curves is shown below.
 
-In a further study [[4]](https://doi.org/10.48550/arXiv.2202.12565), it was found that **Akima interpolation** returns even more accurate results. An example for corresponding interpolated curves is shown below.
+This page provides BD-rate implementations ([see here for a Matlab implementation](https://github.com/FAU-LMS/bjontegaard-matlab)) for both cubic-spline interpolation, PCHIP, and Akima interpolation in Python.
+In our tests, the implementation of PCHIP returns the same value as the Excel-Implementation from [[3]](https://jvet-experts.org/doc_end_user/documents/20_Teleconference/wg11/JVET-T2010-v2.zip) with an accuracy of at least 10 decimal positions. 
+The scripts allow to calculate the BD-rate for any number of RD points greater one.
 
 ## Install
 
@@ -63,9 +60,16 @@ If `interpolators=True` is given, the functions additionally return the internal
 
 ## Relative curve difference plots (RCD-plots)
 
-For in-depth evaluation of codec comparison results, we recommend to take relative curve difference plots (RCD-plots) into account.
+For in-depth evaluation of codec comparison results, we recommend to take relative curve difference plots (RCD-plots) into account (see [[5]](https://arxiv.org/abs/2304.12852)).
 They can be created using:
 * `plot_rcd(rate_anchor, dist_anchor, rate_test, dist_test, method, require_matching_points=True, samples=1000)`
+
+Here is an example for a RCD plot. 
+
+![Relative curve difference](https://github.com/FAU-LMS/bjontegaard-matlab/blob/main/doc/rcd.png)
+
+The left plot shows the supporting points and the Akima-interpolated curves for both anchor and test. The right plot shows the relative horizontal difference between the two curves in percentage. 
+
 
 ## Comparison behind the scenes
 The function `compare_methods` generates a plot that compares the internal interpolation behaviour of the three variants.
@@ -86,7 +90,7 @@ bd.compare_methods(rate_anchor, psnr_anchor, rate_test, psnr_test, rate_label="R
 ```
 
 Furthermore, a comparison between the interpolated curves and intermediate, true rate-distortion points between the supporting points is shown in the plot below. 
-For this example, the quality is represented by the SSIM value. Note that the example was chosen because cubic interpolation fails. Apparently, the curve interpolated by the Akima interpolator is closest to the intermediate points. 
+For this example, the quality is represented by the SSIM value. Note that the example was cherry-picked to show that cubic interpolation can fail. The curve interpolated by the Akima interpolator is closest to the intermediate points. 
 
 ![Measured data](https://raw.githubusercontent.com/FAU-LMS/bjontegaard/main/doc/interpolated_curves.png)
 
@@ -94,7 +98,8 @@ For this example, the quality is represented by the SSIM value. Note that the ex
 [1] G. Bjontegaard, "Calculation of average PSNR differences between RD-curves", VCEG-M33, Austin, TX, USA, April 2001. <br/>
 [2] F. Bossen, "Common HM test conditions and software reference configurations", JCTVC-L1100, Geneva, Switzerland, April 2013. <br/>
 [3] F. Bossen, "VTM common test conditions and software reference configurations for SDR video", JVET-T2020, Teleconference, October 2020. <br/>
-[4] C. Herglotz, M. Kränzler, R. Mons, A. Kaup, "Beyond Bjontegaard: Limits of Video Compression Performance Comparisons", submitted to ICIP 2022, [preprint](https://doi.org/10.48550/arXiv.2202.12565) available. <br/>
+[4] C. Herglotz, M. Kränzler, R. Mons, A. Kaup, "Beyond Bjontegaard: Limits of Video Compression Performance Comparisons", Proc. International Conference on Image Processing (ICIP) 2022, [online](https://doi.org/10.48550/arXiv.2202.12565) available. <br/>
+[5] C. Herglotz, H. Och, A. Meyer, G. Ramasubbu, L. Eichermüller, M. Kränzler, F. Brand, K. Fischer, D. T. Nguyen, A. Regensky, and A. Kaup, “The Bjøntegaard Bible – Why Your Way of Comparing Video Codecs May Be Wrong,” [preprint](https://arxiv.org/abs/2304.12852) available, 2023. 
 
 ## License
 
