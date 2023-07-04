@@ -24,8 +24,40 @@ __author__ += "hta@gogle.com (Harald Alvestrand)"
 
 
 import math  # noqa: E402
-import numpy  # noqa: E402
+import numpy as np  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
+
+
+def bd(xA, yA, xB, yB, interpolators=False):
+    # Best cubic polyfit.
+    poly1 = np.polyfit(xA, yA, 3)
+    poly2 = np.polyfit(xB, yB, 3)
+
+    # Integration interval.
+    x_min = max(min(xA), min(xB))
+    x_max = min(max(xA), max(xB))
+
+    # TODO shouldn't this be an exception...?
+    if x_min == x_max:
+        return 0.0
+
+    # Integrate poly1, and poly2.
+    p_int1 = np.polyint(poly1)
+    p_int2 = np.polyint(poly2)
+
+    # Calculate the integrated value over the interval we care about.
+    int1 = np.polyval(p_int1, x_max) - np.polyval(p_int1, x_min)
+    int2 = np.polyval(p_int2, x_max) - np.polyval(p_int2, x_min)
+
+    # Calculate the average improvement.
+    avg_diff = (int2 - int1) / (x_max - x_min)
+
+    output = avg_diff
+    if interpolators:
+        interp1 = np.poly1d(poly1)
+        interp2 = np.poly1d(poly2)
+        output = (output, interp1, interp2)
+    return output
 
 
 def bd_PSNR(rate1, dist1, rate2, dist2, interpolators=False):
@@ -44,42 +76,11 @@ def bd_PSNR(rate1, dist1, rate2, dist2, interpolators=False):
     # pylint: disable=too-many-locals
     # numpy seems to do tricks with its exports.
     # pylint: disable=no-member
-    # map() is recommended against.
-    # pylint: disable=bad-builtin
 
-    # log_rate1 = map(math.log, rate1)
-    # log_rate2 = map(math.log, rate1)
-    log_rate1 = numpy.log10(rate1)
-    log_rate2 = numpy.log10(rate2)
+    log_rate1 = np.log10(rate1)
+    log_rate2 = np.log10(rate2)
 
-    # Best cubic poly fit for graph represented by log_ratex, psrn_x.
-    poly1 = numpy.polyfit(log_rate1, dist1, 3)
-    poly2 = numpy.polyfit(log_rate2, dist2, 3)
-
-    # Integration interval.
-    min_int = max([min(log_rate1), min(log_rate2)])
-    max_int = min([max(log_rate1), max(log_rate2)])
-
-    # Integrate poly1, and poly2.
-    p_int1 = numpy.polyint(poly1)
-    p_int2 = numpy.polyint(poly2)
-
-    # Calculate the integrated value over the interval we care about.
-    int1 = numpy.polyval(p_int1, max_int) - numpy.polyval(p_int1, min_int)
-    int2 = numpy.polyval(p_int2, max_int) - numpy.polyval(p_int2, min_int)
-
-    # Calculate the average improvement.
-    if max_int != min_int:
-        avg_diff = (int2 - int1) / (max_int - min_int)
-    else:
-        avg_diff = 0.0
-
-    output = avg_diff
-    if interpolators:
-        interp1 = numpy.poly1d(poly1)
-        interp2 = numpy.poly1d(poly2)
-        output = (output, interp1, interp2)
-    return output
+    return bd(log_rate1, dist1, log_rate2, dist2, interpolators=interpolators)
 
 
 def bd_rate(rate1, dist1, rate2, dist2, interpolators=False):
@@ -97,43 +98,23 @@ def bd_rate(rate1, dist1, rate2, dist2, interpolators=False):
     # numpy plays games with its exported functions.
     # pylint: disable=no-member
     # pylint: disable=too-many-locals
-    # pylint: disable=bad-builtin
 
-    # log_rate1 = map(math.log, rate1)
-    # log_rate2 = map(math.log, rate1)
-    log_rate1 = numpy.log10(rate1)
-    log_rate2 = numpy.log10(rate2)
-
-    # Best cubic poly fit for graph represented by log_ratex, psrn_x.
-    poly1 = numpy.polyfit(dist1, log_rate1, 3)
-    poly2 = numpy.polyfit(dist2, log_rate2, 3)
-
-    # Integration interval.
-    min_int = max([min(dist1), min(dist2)])
-    max_int = min([max(dist1), max(dist2)])
-
-    # find integral
-    p_int1 = numpy.polyint(poly1)
-    p_int2 = numpy.polyint(poly2)
-
-    # Calculate the integrated value over the interval we care about.
-    int1 = numpy.polyval(p_int1, max_int) - numpy.polyval(p_int1, min_int)
-    int2 = numpy.polyval(p_int2, max_int) - numpy.polyval(p_int2, min_int)
+    log_rate1 = np.log10(rate1)
+    log_rate2 = np.log10(rate2)
 
     # Calculate the average improvement.
-    avg_exp_diff = (int2 - int1) / (max_int - min_int)
+    output = bd(dist1, log_rate1, dist2, log_rate2, interpolators=interpolators)
 
-    # In really bad formed data the exponent can grow too large.
-    # clamp it.
-    if avg_exp_diff > 200:
-        avg_exp_diff = 200
+    if interpolators:
+        output, interp1, interp2 = output
+
+    # In really bad formed data the exponent can grow too large. clamp it.
+    output = min(output, 200)
 
     # Convert to a percentage.
-    avg_diff = (math.exp(avg_exp_diff) - 1) * 100
+    output = (math.exp(output) - 1) * 100
 
-    output = avg_diff
     if interpolators:
-        interp1 = numpy.poly1d(poly1)
-        interp2 = numpy.poly1d(poly2)
         output = (output, interp1, interp2)
+
     return output

@@ -33,102 +33,78 @@ import scipy.interpolate
 import warnings
 
 
-def bd_rate(rateA, distA, rateB, distB, interpolators=False):
-
-    # makes sure that x and y coordinates are in increasing order
-    if rateA[-1] < rateA[0]:
-        assert (distA[-1] < distA[0])
-        rateA = np.flipud(rateA)
-        distA = np.flipud(distA)
-
-    if rateB[-1] < rateB[0]:
-        assert (distB[-1] < distB[0])
-        rateB = np.flipud(rateB)
-        distB = np.flipud(distB)
-
-    rateA = np.log10(rateA)
-    rateB = np.log10(rateB)
-
-    # computes interpolating polynomial via the Akima Interpolation method
-    # (fallback to linear for less than 3 supporting points)
-    if len(rateA) > 2:
-        interp1 = scipy.interpolate.Akima1DInterpolator(distA, rateA)
-    else:
-        interp1 = scipy.interpolate.make_interp_spline(distA, rateA, k=1)
-    if len(rateB) > 2:
-        interp2 = scipy.interpolate.Akima1DInterpolator(distB, rateB)
-    else:
-        interp2 = scipy.interpolate.make_interp_spline(distB, rateB, k=1)
+def bd(xA, yA, xB, yB, interpolators=False):
+    interp1, interp2 = _make_interpolators(xA, yA, xB, yB)
 
     # compute the integration interval
-    min_dist = max(distA.min(), distB.min())
-    max_dist = min(distA.max(), distB.max())
-
-    # if min_dist is bigger than max_, the curves of both sequences don't overlap - BD cannot be calculated!
-    if min_dist > max_dist:
-        warnings.warn("Curves do not overlap. BD cannot be calculated.")
-        return float('nan')
-
-    # calculate the integrated value over the interval we care about
-    int1 = interp1.integrate(min_dist, max_dist)
-    int2 = interp2.integrate(min_dist, max_dist)
-
-    # calculate the average improvement
-    avg = (int2 - int1) / (max_dist - min_dist)
-
-    # convert to a percentage
-    bdrate = ((10 ** avg) - 1) * 100
-
-    output = bdrate
-    if interpolators:
-        output = (output, interp1, interp2)
-    return output
-
-
-def bd_PSNR(rateA, distA, rateB, distB, interpolators=False):
-
-    # makes sure that x and y coordinates are in increasing order
-    if rateA[-1] < rateA[0]:
-        assert (distA[-1] < distA[0])
-        rateA = np.flipud(rateA)
-        distA = np.flipud(distA)
-
-    if rateB[-1] < rateB[0]:
-        assert (distB[-1] < distB[0])
-        rateB = np.flipud(rateB)
-        distB = np.flipud(distB)
-
-    rateA = np.log10(rateA)
-    rateB = np.log10(rateB)
-
-    # computes interpolating polynomial via the Akima Interpolation method
-    # (fallback to linear for less than 3 supporting points)
-    if len(rateA) > 2:
-        interp1 = scipy.interpolate.Akima1DInterpolator(rateA, distA)
-    else:
-        interp1 = scipy.interpolate.make_interp_spline(rateA, distA, k=1)
-    if len(rateB) > 2:
-        interp2 = scipy.interpolate.Akima1DInterpolator(rateB, distB)
-    else:
-        interp2 = scipy.interpolate.make_interp_spline(rateB, distB, k=1)
-
-    # compute the integration interval
-    min_rate = max(rateA.min(), rateB.min())
-    max_rate = min(rateA.max(), rateB.max())
+    x_min = max(xA.min(), xB.min())
+    x_max = min(xA.max(), xB.max())
 
     # if min_ is bigger than max_, the curves of both sequences don't overlap - BD cannot be calculated!
-    if min_rate > max_rate:
+    if x_min > x_max:
         warnings.warn("Curves do not overlap. BD cannot be calculated.")
-        return float('nan')
+        return float("nan")
 
     # calculate the integrated value over the interval we care about
-    int1 = interp1.integrate(min_rate, max_rate)
-    int2 = interp2.integrate(min_rate, max_rate)
+    int1 = interp1.integrate(x_min, x_max)
+    int2 = interp2.integrate(x_min, x_max)
 
     # calculate the average improvement
-    avg = (int2 - int1) / (max_rate - min_rate)
+    avg = (int2 - int1) / (x_max - x_min)
 
     output = avg
     if interpolators:
         output = (output, interp1, interp2)
     return output
+
+
+def bd_rate(rateA, distA, rateB, distB, interpolators=False):
+    rateA, distA, rateB, distB = _ensure_monotonic(rateA, distA, rateB, distB)
+    rateA = np.log10(rateA)
+    rateB = np.log10(rateB)
+    output = bd(distA, rateA, distB, rateB, interpolators=interpolators)
+
+    if interpolators:
+        (output, interp1, interp2) = output
+    # convert to a percentage
+    output = ((10 ** output) - 1) * 100
+    if interpolators:
+        output = (output, interp1, interp2)
+
+    return output
+
+
+def bd_PSNR(rateA, distA, rateB, distB, interpolators=False):
+    rateA, distA, rateB, distB = _ensure_monotonic(rateA, distA, rateB, distB)
+    rateA = np.log10(rateA)
+    rateB = np.log10(rateB)
+    return bd(rateA, distA, rateB, distB, interpolators=interpolators)
+
+
+def _make_interpolators(xA, yA, xB, yB):
+    # computes interpolating polynomial via the Akima Interpolation method
+    # (fallback to linear for less than 3 supporting points)
+    if len(xA) > 2:
+        interp1 = scipy.interpolate.Akima1DInterpolator(xA, yA)
+    else:
+        interp1 = scipy.interpolate.make_interp_spline(xA, yA, k=1)
+    if len(xB) > 2:
+        interp2 = scipy.interpolate.Akima1DInterpolator(xB, yB)
+    else:
+        interp2 = scipy.interpolate.make_interp_spline(xB, yB, k=1)
+    return interp1, interp2
+
+
+def _ensure_monotonic(xA, yA, xB, yB):
+    # makes sure that x and y coordinates are in increasing order
+    if xA[-1] < xA[0]:
+        assert (yA[-1] < yA[0])
+        xA = np.flipud(xA)
+        yA = np.flipud(yA)
+
+    if xB[-1] < xB[0]:
+        assert (yB[-1] < yB[0])
+        xB = np.flipud(xB)
+        yB = np.flipud(yB)
+
+    return xA, yA, xB, yB
