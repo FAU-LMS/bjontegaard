@@ -46,16 +46,19 @@ def bd_rate(rateA, distA, rateB, distB, interpolators=False):
         rateB = np.flipud(rateB)
         distB = np.flipud(distB)
 
+    rateA = np.log10(rateA)
+    rateB = np.log10(rateB)
+
     # computes interpolating polynomial via the Akima Interpolation method
     # (fallback to linear for less than 3 supporting points)
     if len(rateA) > 2:
-        interp1 = scipy.interpolate.Akima1DInterpolator(distA, np.log10(rateA))
+        interp1 = scipy.interpolate.Akima1DInterpolator(distA, rateA)
     else:
-        interp1 = scipy.interpolate.make_interp_spline(distA, np.log10(rateA), k=1)
+        interp1 = scipy.interpolate.make_interp_spline(distA, rateA, k=1)
     if len(rateB) > 2:
-        interp2 = scipy.interpolate.Akima1DInterpolator(distB, np.log10(rateB))
+        interp2 = scipy.interpolate.Akima1DInterpolator(distB, rateB)
     else:
-        interp2 = scipy.interpolate.make_interp_spline(distB, np.log10(rateB), k=1)
+        interp2 = scipy.interpolate.make_interp_spline(distB, rateB, k=1)
 
     # compute the integration interval
     min_dist = max(distA.min(), distB.min())

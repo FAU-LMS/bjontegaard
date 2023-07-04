@@ -50,9 +50,12 @@ def bd_rate(rateA, distA, rateB, distB, interpolators=False):
         rateB = np.flipud(rateB)
         distB = np.flipud(distB)
 
+    rateA = np.log10(rateA)
+    rateB = np.log10(rateB)
+
     # Compute Piecewise Cubic Hermite Interpolating Polynomial
-    interp1 = scipy.interpolate.PchipInterpolator(distA, np.log10(rateA))
-    interp2 = scipy.interpolate.PchipInterpolator(distB, np.log10(rateB))
+    interp1 = scipy.interpolate.PchipInterpolator(distA, rateA)
+    interp2 = scipy.interpolate.PchipInterpolator(distB, rateB)
 
     # Integration interval.
     minPSNR = max(distA.min(), distB.min())
