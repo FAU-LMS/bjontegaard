@@ -28,7 +28,51 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__version__ = "1.2.0"
 
-from .functions import bd_linear, bd_rate, bd_psnr, plot_rcd
-from .evaluate import compare_methods
+import scipy.interpolate
+import numpy as np
+
+
+def interpolate(x, y, method: str):
+    # makes sure that x and y coordinates are in increasing order
+    if x[-1] < x[0]:
+        assert (y[-1] < y[0])
+        x = np.flipud(x)
+        y = np.flipud(y)
+
+    if method == 'akima':
+        return interpolate_akima(x, y)
+    elif method == 'pchip':
+        return interpolate_pchip(x, y)
+    elif method == 'cubic':
+        return interpolate_cubic(x, y)
+    else:
+        raise ValueError("Invalid interpolation method '{}'. Only 'akima', 'pchip' and 'cubic' are allowed"
+                         .format(method))
+
+
+def interpolate_akima(x, y):
+    if len(x) > 2:
+        return scipy.interpolate.Akima1DInterpolator(x, y)
+    else:
+        return scipy.interpolate.make_interp_spline(x, y, k=1)
+
+
+def interpolate_pchip(x, y):
+    return scipy.interpolate.PchipInterpolator(x, y)
+
+
+def interpolate_cubic(x, y):
+    class CubicInterpolator:
+        def __init__(self, _x, _y):
+            self._coefficients = np.polyfit(_x, _y, 3)
+            self._interpolator = np.poly1d(self._coefficients)
+            self._integrator = np.polyint(self._coefficients)
+
+        def __call__(self, _x):
+            return self._interpolator(_x)
+
+        def integrate(self, lower_bound, higher_bound):
+            return np.polyval(self._integrator, higher_bound) - np.polyval(self._integrator, lower_bound)
+
+    return CubicInterpolator(x, y)

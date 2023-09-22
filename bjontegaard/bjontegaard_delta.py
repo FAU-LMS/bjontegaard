@@ -28,7 +28,32 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__version__ = "1.2.0"
 
-from .functions import bd_linear, bd_rate, bd_psnr, plot_rcd
-from .evaluate import compare_methods
+import warnings
+from .interpolation import interpolate
+
+
+def bjontegaard_delta(base_anchor, metric_anchor, base_test, metric_test, method, interpolators):
+    # Compute the overlap (integration) interval
+    overlap_interval_min = max(base_anchor.min(), base_test.min())
+    overlap_interval_max = min(base_anchor.max(), base_test.max())
+
+    # If overlap_interval_min is bigger than overlap_interval_max, the curves of both sequences don't overlap.
+    if overlap_interval_min > overlap_interval_max:
+        warnings.warn("Curves do not overlap. BD cannot be calculated.")
+        return float("nan")
+
+    f_anchor = interpolate(base_anchor, metric_anchor, method)
+    f_test = interpolate(base_test, metric_test, method)
+
+    # Calculate the integrated value over the interval we care about
+    integrated_anchor = f_anchor.integrate(overlap_interval_min, overlap_interval_max)
+    integrated_test = f_test.integrate(overlap_interval_min, overlap_interval_max)
+
+    # Calculate the average improvement
+    avg = (integrated_test - integrated_anchor) / (overlap_interval_max - overlap_interval_min)
+
+    if interpolators:
+        return avg, f_anchor, f_test
+    else:
+        return avg
