@@ -33,15 +33,28 @@ import warnings
 from .interpolation import interpolate
 
 
-def bjontegaard_delta(base_anchor, metric_anchor, base_test, metric_test, method, interpolators):
+def bjontegaard_delta(base_anchor, metric_anchor,
+                      base_test, metric_test,
+                      method,
+                      interpolators,
+                      min_overlap):
     # Compute the overlap (integration) interval
+    total_interval_min = min(base_anchor.min(), base_test.min())
+    total_interval_max = max(base_anchor.max(), base_test.max())
     overlap_interval_min = max(base_anchor.min(), base_test.min())
     overlap_interval_max = min(base_anchor.max(), base_test.max())
 
-    # If overlap_interval_min is bigger than overlap_interval_max, the curves of both sequences don't overlap.
-    if overlap_interval_min > overlap_interval_max:
+    overlap = max(overlap_interval_max - overlap_interval_min, 0) / (total_interval_max - total_interval_min)
+    if overlap == 0:
         warnings.warn("Curves do not overlap. BD cannot be calculated.")
-        return float("nan")
+        return float("nan") if not interpolators else (float("nan"),
+                                                       interpolate(base_anchor, metric_anchor, method),
+                                                       interpolate(base_test, metric_test, method))
+    elif overlap < min_overlap:
+        warnings.warn(
+            "Insufficient curve overlap: '{:.2f}'. Minimum overlap: '{:.2f}'. "
+            "You can silence this warning by setting `min_overlap=0`".format(overlap * 100, min_overlap * 100)
+        )
 
     f_anchor = interpolate(base_anchor, metric_anchor, method)
     f_test = interpolate(base_test, metric_test, method)

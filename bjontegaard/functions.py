@@ -55,7 +55,8 @@ def bd_linear(base_anchor: _ValueArray,
               metric_test: _ValueArray,
               method: str,
               require_matching_points=True,
-              interpolators=False) -> Union[float, Tuple[float, _Interpolator, _Interpolator]]:
+              interpolators=False,
+              min_overlap=0.75) -> Union[float, Tuple[float, _Interpolator, _Interpolator]]:
     """
     Linear Bjontegaard-Delta calculating the average metric difference averaged over the overlap
     interval of the base variable of anchor and test using the specified interpolation method.
@@ -78,6 +79,7 @@ def bd_linear(base_anchor: _ValueArray,
     :param require_matching_points: whether to require an equal number of rate-distortion points for anchor and test.
     (default: True)
     :param interpolators: whether to include the interpolation callables in the output (default: False)
+    :param min_overlap: minimum relative overlap of anchor and test along base before raising a warning
     :returns: (Linear) Bjontegaard-Delta metric
     :returns: Only returned if `interpolators == True`. Interpolation callables for investigated and reference codec.
     :raises ValueError: if number of points for rate and distortion metric do not match
@@ -91,7 +93,7 @@ def bd_linear(base_anchor: _ValueArray,
     metric_test = np.asarray(metric_test)
     _check_points(len(base_anchor), len(metric_anchor), len(base_test), len(metric_test), require_matching_points)
 
-    return bjontegaard_delta(base_anchor, metric_anchor, base_test, metric_test, method, interpolators)
+    return bjontegaard_delta(base_anchor, metric_anchor, base_test, metric_test, method, interpolators, min_overlap)
 
 
 def bd_rate(rate_anchor: _ValueArray,
@@ -100,7 +102,8 @@ def bd_rate(rate_anchor: _ValueArray,
             dist_test: _ValueArray,
             method: str,
             require_matching_points=True,
-            interpolators=False) -> Union[float, Tuple[float, _Interpolator, _Interpolator]]:
+            interpolators=False,
+            min_overlap=0.75) -> Union[float, Tuple[float, _Interpolator, _Interpolator]]:
     """
     Calculate the Bjontegaard-Delta Rate using the specified interpolation method.
 
@@ -112,6 +115,7 @@ def bd_rate(rate_anchor: _ValueArray,
     :param require_matching_points: whether to require an equal number of rate-distortion points for anchor and test.
     (default: True)
     :param interpolators: whether to include the interpolation callables in the output (default: False)
+    :param min_overlap: minimum relative overlap of anchor and test along distortion metric before raising a warning
     :returns: Bjontegaard-Delta Rate
     :returns: Only returned if `interpolators == True`. Interpolation callables for investigated and reference codec.
     :raises ValueError: if number of points for rate and distortion metric do not match
@@ -127,7 +131,12 @@ def bd_rate(rate_anchor: _ValueArray,
     rate_anchor = np.log10(rate_anchor)
     rate_test = np.log10(rate_test)
 
-    output = bd_linear(dist_anchor, rate_anchor, dist_test, rate_test, method, require_matching_points, interpolators)
+    output = bd_linear(dist_anchor, rate_anchor,
+                       dist_test, rate_test,
+                       method,
+                       require_matching_points,
+                       interpolators,
+                       min_overlap)
 
     def bdlograte_to_percent(bdlograte):
         return ((10 ** bdlograte) - 1) * 100
@@ -146,7 +155,8 @@ def bd_psnr(rate_anchor: _ValueArray,
             dist_test: _ValueArray,
             method: str,
             require_matching_points=True,
-            interpolators=False) -> Union[float, Tuple[float, _Interpolator, _Interpolator]]:
+            interpolators=False,
+            min_overlap=0.75) -> Union[float, Tuple[float, _Interpolator, _Interpolator]]:
     """
     Calculate the Bjontegaard-Delta PSNR using the specified interpolation method.
 
@@ -158,6 +168,7 @@ def bd_psnr(rate_anchor: _ValueArray,
     :param require_matching_points: whether to require an equal number of rate-distortion points for anchor and test.
     (default: True)
     :param interpolators: whether to include the interpolation callables in the output (default: False)
+    :param min_overlap: minimum relative overlap of anchor and test along rate before raising a warning
     :returns: Bjontegaard-Delta PSNR
     :returns: Only returned if `interpolators == True`. Interpolation callables for investigated and reference codec.
     :raises ValueError: if number of points for rate and distortion metric do not match
@@ -173,7 +184,12 @@ def bd_psnr(rate_anchor: _ValueArray,
     rate_anchor = np.log10(rate_anchor)
     rate_test = np.log10(rate_test)
 
-    return bd_linear(rate_anchor, dist_anchor, rate_test, dist_test, method, require_matching_points, interpolators)
+    return bd_linear(rate_anchor, dist_anchor,
+                     rate_test, dist_test,
+                     method,
+                     require_matching_points,
+                     interpolators,
+                     min_overlap)
 
 
 def plot_rcd(rate_anchor: _ValueArray,
