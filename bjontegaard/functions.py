@@ -32,9 +32,7 @@
 from typing import Union, List, Tuple, Callable
 import numpy as np
 import matplotlib.pyplot as plt
-from . import bd_akima
-from . import bd_cubic
-from . import bd_piecewise_cubic
+from .bjontegaard_delta import bjontegaard_delta
 
 
 _ValueArray = Union[List[Union[int, float]], np.ndarray]
@@ -49,6 +47,51 @@ def _check_points(n_rate_anchor, n_dist_anchor, n_rate_test, n_dist_test, requir
     if require_matching_points and n_rate_anchor != n_rate_test:
         raise ValueError("Number of rate-distortion points for anchor and test does not match but "
                          "`require_matching_points == True`")
+
+
+def bd_linear(base_anchor: _ValueArray,
+              metric_anchor: _ValueArray,
+              base_test: _ValueArray,
+              metric_test: _ValueArray,
+              method: str,
+              require_matching_points=True,
+              interpolators=False) -> Union[float, Tuple[float, _Interpolator, _Interpolator]]:
+    """
+    Linear Bjontegaard-Delta calculating the average metric difference averaged over the overlap
+    interval of the base variable of anchor and test using the specified interpolation method.
+
+    'bd_linear' means that no log scaling (or any other scaling) is applied to the base or metric variables. The only
+    difference to 'bd_rate' and 'bd_psnr' is the applied log scaling to the rate variable.
+
+    For Bjontegaard-Delta calculations, the given data points (base_anchor, metric_anchor), (base_test, metric_test)
+    are interpreted as domain and codomain of a continuous function, i.e., metric_anchor = f_anchor(base_anchor),
+    metric_test = f_test(base_test). The Bjontegaard-Delta value specifies the average improvement of the test metric
+    over the anchor metric in the overlap interval of the base points of anchor and test. The functions f_anchor
+    and f_test are approximated through interpolation using the provided data points (base_anchor, metric_anchor)
+    and (base_test, metric_test) using the specified interpolation method.
+
+    :param base_anchor: data points of base variable for anchor (independent variable)
+    :param metric_anchor: data points of metric variable for anchor (dependent variable)
+    :param base_test: data points of base variable for test (independent variable)
+    :param metric_test: data points of metric variable for test (dependent variable)
+    :param method: interpolation method to use for Bjontegaard-Delta calculation ('akima', 'pchip', 'cubic')
+    :param require_matching_points: whether to require an equal number of rate-distortion points for anchor and test.
+    (default: True)
+    :param interpolators: whether to include the interpolation callables in the output (default: False)
+    :returns: (Linear) Bjontegaard-Delta metric
+    :returns: Only returned if `interpolators == True`. Interpolation callables for investigated and reference codec.
+    :raises ValueError: if number of points for rate and distortion metric do not match
+    :raises ValueError: if `require_matching_points == True` and number of rate-distortion points for anchor and test
+    do not match
+    :raises ValueError: if interpolation method is not valid
+    """
+    base_anchor = np.asarray(base_anchor)
+    metric_anchor = np.asarray(metric_anchor)
+    base_test = np.asarray(base_test)
+    metric_test = np.asarray(metric_test)
+    _check_points(len(base_anchor), len(metric_anchor), len(base_test), len(metric_test), require_matching_points)
+
+    return bjontegaard_delta(base_anchor, metric_anchor, base_test, metric_test, method, interpolators)
 
 
 def bd_rate(rate_anchor: _ValueArray,
@@ -80,16 +123,21 @@ def bd_rate(rate_anchor: _ValueArray,
     dist_anchor = np.asarray(dist_anchor)
     rate_test = np.asarray(rate_test)
     dist_test = np.asarray(dist_test)
-    _check_points(len(rate_anchor), len(dist_anchor), len(rate_test), len(dist_test), require_matching_points)
-    if method == 'akima':
-        return bd_akima.bd_rate(rate_anchor, dist_anchor, rate_test, dist_test, interpolators)
-    elif method == 'pchip':
-        return bd_piecewise_cubic.bd_rate(rate_anchor, dist_anchor, rate_test, dist_test, interpolators)
-    elif method == 'cubic':
-        return bd_cubic.bd_rate(rate_anchor, dist_anchor, rate_test, dist_test, interpolators)
+
+    rate_anchor = np.log10(rate_anchor)
+    rate_test = np.log10(rate_test)
+
+    output = bd_linear(dist_anchor, rate_anchor, dist_test, rate_test, method, require_matching_points, interpolators)
+
+    def bdlograte_to_percent(bdlograte):
+        return ((10 ** bdlograte) - 1) * 100
+
+    if interpolators:
+        output = bdlograte_to_percent(output[0]), output[1], output[2]
     else:
-        raise ValueError("Invalid interpolation method '{}'. Only 'akima', 'pchip' and 'cubic' are allowed"
-                         .format(method))
+        output = bdlograte_to_percent(output)
+
+    return output
 
 
 def bd_psnr(rate_anchor: _ValueArray,
@@ -121,16 +169,11 @@ def bd_psnr(rate_anchor: _ValueArray,
     dist_anchor = np.asarray(dist_anchor)
     rate_test = np.asarray(rate_test)
     dist_test = np.asarray(dist_test)
-    _check_points(len(rate_anchor), len(dist_anchor), len(rate_test), len(dist_test), require_matching_points)
-    if method == 'akima':
-        return bd_akima.bd_PSNR(rate_anchor, dist_anchor, rate_test, dist_test, interpolators)
-    elif method == 'pchip':
-        return bd_piecewise_cubic.bd_PSNR(rate_anchor, dist_anchor, rate_test, dist_test, interpolators)
-    elif method == 'cubic':
-        return bd_cubic.bd_PSNR(rate_anchor, dist_anchor, rate_test, dist_test, interpolators)
-    else:
-        raise ValueError("Invalid interpolation method '{}'. Only 'akima', 'pchip' and 'cubic' are allowed"
-                         .format(method))
+
+    rate_anchor = np.log10(rate_anchor)
+    rate_test = np.log10(rate_test)
+
+    return bd_linear(rate_anchor, dist_anchor, rate_test, dist_test, method, require_matching_points, interpolators)
 
 
 def plot_rcd(rate_anchor: _ValueArray,
