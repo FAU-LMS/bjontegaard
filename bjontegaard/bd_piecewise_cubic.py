@@ -32,6 +32,26 @@ import numpy as np
 import scipy.interpolate
 
 
+def bd(xA, yA, xB, yB, interpolators=False):
+    interp1, interp2 = _make_interpolators(xA, yA, xB, yB)
+
+    # Integration interval.
+    x_min = max(xA.min(), xB.min())
+    x_max = min(xA.max(), xB.max())
+
+    # Calculate the integrated value over the interval we care about.
+    int1 = interp1.integrate(x_min, x_max)
+    int2 = interp2.integrate(x_min, x_max)
+
+    # Calculate the average improvement.
+    avg = (int2 - int1) / (x_max - x_min)
+
+    output = avg
+    if interpolators:
+        output = (output, interp1, interp2)
+    return output
+
+
 def bd_rate(rateA, distA, rateB, distB, interpolators=False):
     """Computes the Bjøntegaard bitrate (%) based on the Piecewise Cubic Hermite Interpolating Polynomial"""
     rateA = np.asarray(rateA)
@@ -39,38 +59,20 @@ def bd_rate(rateA, distA, rateB, distB, interpolators=False):
     rateB = np.asarray(rateB)
     distB = np.asarray(distB)
 
-    # make sure that x and y coordinates are in increasing order
-    if rateA[-1] < rateA[0]:
-        assert (distA[-1] < distA[0])
-        rateA = np.flipud(rateA)
-        distA = np.flipud(distA)
+    rateA, distA, rateB, distB = _ensure_monotonic(rateA, distA, rateB, distB)
 
-    if rateB[-1] < rateB[0]:
-        assert (distB[-1] < distB[0])
-        rateB = np.flipud(rateB)
-        distB = np.flipud(distB)
+    rateA = np.log10(rateA)
+    rateB = np.log10(rateB)
 
-    # Compute Piecewise Cubic Hermite Interpolating Polynomial
-    interp1 = scipy.interpolate.PchipInterpolator(distA, np.log10(rateA))
-    interp2 = scipy.interpolate.PchipInterpolator(distB, np.log10(rateB))
+    output = bd(distA, rateA, distB, rateB, interpolators=interpolators)
 
-    # Integration interval.
-    minPSNR = max(distA.min(), distB.min())
-    maxPSNR = min(distA.max(), distB.max())
-
-    # Calculate the integrated value over the interval we care about.
-    int1 = interp1.integrate(minPSNR, maxPSNR)
-    int2 = interp2.integrate(minPSNR, maxPSNR)
-
-    # Calculate the average improvement.
-    avg = (int2 - int1) / (maxPSNR - minPSNR)
-
+    if interpolators:
+        (output, interp1, interp2) = output
     # Convert to a percentage.
-    bdrate = ((10 ** avg) - 1) * 100
-
-    output = bdrate
+    output = ((10 ** output) - 1) * 100
     if interpolators:
         output = (output, interp1, interp2)
+
     return output
 
 
@@ -81,36 +83,31 @@ def bd_PSNR(rateA, distA, rateB, distB, interpolators=False):
     rateB = np.array(rateB)
     distB = np.array(distB)
 
-    # make sure that x and y coordinates are in increasing order
-    if rateA[-1] < rateA[0]:
-        assert (distA[-1] < distA[0])
-        rateA = np.flipud(rateA)
-        distA = np.flipud(distA)
-
-    if rateB[-1] < rateB[0]:
-        assert (distB[-1] < distB[0])
-        rateB = np.flipud(rateB)
-        distB = np.flipud(distB)
+    rateA, distA, rateB, distB = _ensure_monotonic(rateA, distA, rateB, distB)
 
     rateA = np.log10(rateA)
     rateB = np.log10(rateB)
 
+    return bd(rateA, distA, rateB, distB, interpolators=interpolators)
+
+
+def _make_interpolators(xA, yA, xB, yB):
     # Compute Piecewise Cubic Hermite Interpolating Polynomial
-    interp1 = scipy.interpolate.PchipInterpolator(rateA, distA)
-    interp2 = scipy.interpolate.PchipInterpolator(rateB, distB)
+    interp1 = scipy.interpolate.PchipInterpolator(xA, yA)
+    interp2 = scipy.interpolate.PchipInterpolator(xB, yB)
+    return interp1, interp2
 
-    # Integration interval.
-    minRate = max(rateA.min(), rateB.min())
-    maxRate = min(rateA.max(), rateB.max())
 
-    # Calculate the integrated value over the interval we care about.
-    int1 = interp1.integrate(minRate, maxRate)
-    int2 = interp2.integrate(minRate, maxRate)
+def _ensure_monotonic(xA, yA, xB, yB):
+    # makes sure that x and y coordinates are in increasing order
+    if xA[-1] < xA[0]:
+        assert yA[-1] < yA[0]
+        xA = np.flipud(xA)
+        yA = np.flipud(yA)
 
-    # Calculate the average improvement.
-    avg = (int2 - int1) / (maxRate - minRate)
+    if xB[-1] < xB[0]:
+        assert yB[-1] < yB[0]
+        xB = np.flipud(xB)
+        yB = np.flipud(yB)
 
-    output = avg
-    if interpolators:
-        output = (output, interp1, interp2)
-    return output
+    return xA, yA, xB, yB
