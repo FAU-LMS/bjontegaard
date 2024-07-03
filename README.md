@@ -99,7 +99,7 @@ For this example, the quality is represented by the SSIM value. Note that the ex
 [2] F. Bossen, "Common HM test conditions and software reference configurations", JCTVC-L1100, Geneva, Switzerland, April 2013. <br/>
 [3] F. Bossen, "VTM common test conditions and software reference configurations for SDR video", JVET-T2020, Teleconference, October 2020. <br/>
 [4] C. Herglotz, M. Kränzler, R. Mons, A. Kaup, "Beyond Bjontegaard: Limits of Video Compression Performance Comparisons", Proc. International Conference on Image Processing (ICIP) 2022, [online](https://doi.org/10.48550/arXiv.2202.12565) available. <br/>
-[5] C. Herglotz, H. Och, A. Meyer, G. Ramasubbu, L. Eichermüller, M. Kränzler, F. Brand, K. Fischer, D. T. Nguyen, A. Regensky, and A. Kaup, “The Bjøntegaard Bible – Why Your Way of Comparing Video Codecs May Be Wrong,” IEEE Transactions on Image Processing, 2024. 
+[5] C. Herglotz, H. Och, A. Meyer, G. Ramasubbu, L. Eichermüller, M. Kränzler, F. Brand, K. Fischer, D. T. Nguyen, A. Regensky, and A. Kaup, “The Bjøntegaard Bible – Why Your Way of Comparing Video Codecs May Be Wrong,” IEEE Transactions on Image Processing, 2024, [online]([https://doi.org/10.48550/arXiv.2202.12565](https://arxiv.org/abs/2304.12852)) available. 
 
 ## License
 
